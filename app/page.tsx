@@ -6,12 +6,14 @@ import {
   User,
   CheckCircle2,
   AlertCircle,
+  Loader2,
   RotateCcw,
   ChevronRight,
   ChevronLeft,
   Stethoscope,
   CheckSquare2,
   CircleDot,
+  Send,
   Edit3,
 } from "lucide-react";
 import questionsData from "@/data/questions.json";
@@ -57,6 +59,7 @@ export default function SurveyPage() {
   const [doctorName, setDoctorName] = useState("");
   const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [step, setStep] = useState(0);
   const [stepTouched, setStepTouched] = useState(false);
   const submissionIdRef = useRef<string>(crypto.randomUUID());
@@ -99,7 +102,7 @@ export default function SurveyPage() {
   /** Submit the current step's answer to the backend */
   async function submitStepAnswer(
     currentAnswers: Record<string, string | string[]>,
-  ) {
+  ): Promise<boolean> {
     const record = {
       id: submissionIdRef.current,
       doctorName,
@@ -117,27 +120,35 @@ export default function SurveyPage() {
       if (!res.ok || !result.success) {
         throw new Error(result.error || "Submission failed");
       }
+      return true;
     } catch (err) {
       console.error("Submit error:", err);
-      // Silently log – we don't block navigation for save failures
+      alert("Failed to submit. Please try again.");
+      return false;
     }
   }
 
-  function handleNext() {
+  async function handleNext() {
     setStepTouched(true);
     if (!isCurrentStepValid()) return;
     setStepTouched(false);
 
     // Submit current step data to backend
     if (isNameStep) {
-      // Doctor name step – create/update the submission record
-      submitStepAnswer({});
+      // Doctor name step – create the submission record
+      setSubmitting(true);
+      const ok = await submitStepAnswer({});
+      setSubmitting(false);
+      if (!ok) return;
     } else if (currentQuestion) {
-      // Question step – send only this question's answer
+      // Question step – submit this question's answer
       const qId = currentQuestion.id;
       const ans = answers[qId];
       if (ans !== undefined) {
-        submitStepAnswer({ [qId]: ans });
+        setSubmitting(true);
+        const ok = await submitStepAnswer({ [qId]: ans });
+        setSubmitting(false);
+        if (!ok) return;
       }
     }
 
@@ -492,6 +503,7 @@ export default function SurveyPage() {
                 type="button"
                 variant="outline"
                 onClick={handleBack}
+                disabled={submitting}
                 className="gap-1.5 border-border"
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -512,14 +524,43 @@ export default function SurveyPage() {
                 <CheckCircle2 className="h-4 w-4" />
                 Finish Survey
               </Button>
+            ) : isNameStep ? (
+              <Button
+                type="button"
+                onClick={handleNext}
+                disabled={submitting}
+                className="gap-1.5 bg-primary text-white hover:bg-primary-dark"
+              >
+                {submitting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Saving…
+                  </>
+                ) : (
+                  <>
+                    Next
+                    <ChevronRight className="h-4 w-4" />
+                  </>
+                )}
+              </Button>
             ) : (
               <Button
                 type="button"
                 onClick={handleNext}
+                disabled={submitting}
                 className="gap-1.5 bg-primary text-white hover:bg-primary-dark"
               >
-                Next
-                <ChevronRight className="h-4 w-4" />
+                {submitting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Submitting…
+                  </>
+                ) : (
+                  <>
+                    <Send className="h-4 w-4" />
+                    Submit
+                  </>
+                )}
               </Button>
             )}
           </div>
