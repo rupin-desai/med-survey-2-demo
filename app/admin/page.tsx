@@ -155,8 +155,11 @@ const ADMIN_PASS = "survey-navy123";
 
 /* ── Admin Page ──────────────────────────────────────────────────── */
 export default function AdminPage() {
-  /* auth */
-  const [authed, setAuthed] = useState(false);
+  /* auth — restore from sessionStorage so refresh keeps you logged in */
+  const [authed, setAuthed] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return sessionStorage.getItem("admin_authed") === "1";
+  });
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loginError, setLoginError] = useState("");
@@ -199,6 +202,7 @@ export default function AdminPage() {
   function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     if (username === ADMIN_USER && password === ADMIN_PASS) {
+      sessionStorage.setItem("admin_authed", "1");
       setAuthed(true);
       setLoginError("");
     } else {

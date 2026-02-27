@@ -18,9 +18,9 @@ Using **Neon Postgres** via Vercel Storage integration. Neon is a serverless Pos
 
 ### Package to use
 
-| Package                     | Purpose                                                                      |
-| --------------------------- | ---------------------------------------------------------------------------- |
-| `@neondatabase/serverless`  | Neon's official serverless SDK — HTTP-based, works on Vercel edge/serverless |
+| Package                    | Purpose                                                                      |
+| -------------------------- | ---------------------------------------------------------------------------- |
+| `@neondatabase/serverless` | Neon's official serverless SDK — HTTP-based, works on Vercel edge/serverless |
 
 > **Note:** `@vercel/postgres` is **deprecated** as of 2025. Neon databases created through Vercel now use `@neondatabase/serverless` directly.
 
@@ -32,14 +32,14 @@ Using **Neon Postgres** via Vercel Storage integration. Neon is a serverless Pos
 
 When you link Neon to your Vercel project, these env vars are **auto-injected** (with `STORAGE` custom prefix):
 
-| Variable                    | Description                               |
-| --------------------------- | ----------------------------------------- |
-| `STORAGE_URL`               | Pooled connection string (for serverless) |
-| `STORAGE_URL_NON_POOLING`   | Direct connection (for migrations)        |
-| `STORAGE_USER`              | Database user                             |
-| `STORAGE_PASSWORD`          | Database password                         |
-| `STORAGE_HOST`              | Neon host                                 |
-| `STORAGE_DATABASE`          | Database name                             |
+| Variable                  | Description                               |
+| ------------------------- | ----------------------------------------- |
+| `STORAGE_URL`             | Pooled connection string (for serverless) |
+| `STORAGE_URL_NON_POOLING` | Direct connection (for migrations)        |
+| `STORAGE_USER`            | Database user                             |
+| `STORAGE_PASSWORD`        | Database password                         |
+| `STORAGE_HOST`            | Neon host                                 |
+| `STORAGE_DATABASE`        | Database name                             |
 
 > **Custom prefix:** You chose `STORAGE` as the prefix during setup. So env vars are `STORAGE_URL` instead of the default `POSTGRES_URL`.
 
