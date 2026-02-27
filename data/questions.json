@@ -41,46 +41,6 @@
   },
   {
     "id": "q4",
-    "text": "Which of the following patient groups would you prioritize for MASH screening… (Select whichever is applicable)",
-    "type": "multiple",
-    "required": true,
-    "options": [
-      { "value": "A", "label": "Patients with obesity" },
-      {
-        "value": "B",
-        "label": "Patients with type 2 diabetes mellitus (T2DM)"
-      },
-      { "value": "C", "label": "Patients with metabolic syndrome" },
-      { "value": "D", "label": "Patients with dyslipidemia" },
-      {
-        "value": "E",
-        "label": "Patients with elevated liver enzymes (ALT/AST)"
-      },
-      {
-        "value": "F",
-        "label": "Patients with a family history of liver disease"
-      },
-      {
-        "value": "G",
-        "label": "Individuals with multiple cardiometabolic risk factors"
-      }
-    ]
-  },
-  {
-    "id": "q5",
-    "text": "How would you rate the reliability of the FIB-4 score in your clinical practice?",
-    "type": "single",
-    "required": true,
-    "options": [
-      { "value": "A", "label": "Very reliable" },
-      { "value": "B", "label": "Reliable" },
-      { "value": "C", "label": "Moderately reliable" },
-      { "value": "D", "label": "Slightly reliable" },
-      { "value": "E", "label": "Not reliable" }
-    ]
-  },
-  {
-    "id": "q6",
     "text": "Would you use Semaglutide in Lean MASH patients?",
     "type": "single",
     "required": true,
@@ -90,7 +50,7 @@
     ]
   },
   {
-    "id": "q7",
+    "id": "q5",
     "text": "Based on your clinical experience, which dose of semaglutide is best tolerated by Indian patients with MASH?",
     "type": "single",
     "required": true,
@@ -101,7 +61,7 @@
     ]
   },
   {
-    "id": "q8",
+    "id": "q6",
     "text": "What decision would you take regarding continuation of Semaglutide in patients with MASH after achieving adequate weight loss?",
     "type": "single",
     "required": true,
@@ -125,7 +85,7 @@
     ]
   },
   {
-    "id": "q9",
+    "id": "q7",
     "text": "How concerned are you about muscle loss in patients receiving semaglutide therapy?",
     "type": "single",
     "required": true,
@@ -141,7 +101,7 @@
     ]
   },
   {
-    "id": "q10",
+    "id": "q8",
     "text": "How often do you prescribe nutritional supplements for your patients who are receiving semaglutide therapy?",
     "type": "single",
     "required": true,
@@ -154,7 +114,7 @@
     ]
   },
   {
-    "id": "q11",
+    "id": "q9",
     "text": "How would you rate the efficacy of semaglutide in patients with MASH?",
     "type": "single",
     "required": true,
@@ -167,7 +127,7 @@
     ]
   },
   {
-    "id": "q12",
+    "id": "q10",
     "text": "Which is the most common adverse effect(s) you have come across with Semaglutide in your patients with MASH? (Select whichever is applicable)",
     "type": "multiple",
     "required": true,
@@ -177,19 +137,6 @@
       { "value": "C", "label": "Constipation" },
       { "value": "D", "label": "Abdominal pain" },
       { "value": "E", "label": "Bloating / Fullness" }
-    ]
-  },
-  {
-    "id": "q13",
-    "text": "How would you assess the tolerability of semaglutide in patients with MASH?",
-    "type": "single",
-    "required": true,
-    "options": [
-      { "value": "A", "label": "Excellent tolerability" },
-      { "value": "B", "label": "Good tolerability" },
-      { "value": "C", "label": "Moderate tolerability" },
-      { "value": "D", "label": "Poor tolerability" },
-      { "value": "E", "label": "Very poor tolerability" }
     ]
   }
 ]
