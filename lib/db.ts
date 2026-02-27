@@ -4,21 +4,21 @@ import { neon } from "@neondatabase/serverless";
  * Returns a Neon SQL query function.
  *
  * Vercel injects env vars with the custom prefix "STORAGE":
- *   STORAGE_URL          – pooled connection (for serverless)
- *   STORAGE_URL_NON_POOLING – direct connection (for migrations)
- *
- * Falls back to POSTGRES_URL / DATABASE_URL for flexibility.
+ *   STORAGE_DATABASE_URL     – pooled connection (for serverless)
+ *   STORAGE_POSTGRES_URL     – pooled connection (alias)
+ *   STORAGE_DATABASE_URL_UNPOOLED – direct connection (for migrations)
  */
 function getSQL() {
   const url =
-    process.env.STORAGE_URL ||
+    process.env.STORAGE_DATABASE_URL ||
+    process.env.STORAGE_POSTGRES_URL ||
     process.env.POSTGRES_URL ||
     process.env.DATABASE_URL ||
     "";
 
   if (!url) {
     throw new Error(
-      "Database URL not found. Set STORAGE_URL, POSTGRES_URL, or DATABASE_URL.",
+      "Database URL not found. Set STORAGE_DATABASE_URL, STORAGE_POSTGRES_URL, POSTGRES_URL, or DATABASE_URL.",
     );
   }
 
