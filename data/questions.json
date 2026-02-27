@@ -1,0 +1,165 @@
+[
+  {
+    "id": "q1",
+    "text": "Approximately how many patients with MASH do you see in your practice each month?",
+    "type": "single",
+    "required": true,
+    "options": [
+      { "value": "A", "label": "Fewer than 5 patients" },
+      { "value": "B", "label": "5–10 patients" },
+      { "value": "C", "label": "11–20 patients" },
+      { "value": "D", "label": "21–30 patients" },
+      { "value": "E", "label": "More than 30 patients" }
+    ]
+  },
+  {
+    "id": "q2",
+    "text": "In your clinical practice, what proportion of patients with MASH are associated with obesity?",
+    "type": "single",
+    "required": true,
+    "options": [
+      { "value": "A", "label": "50%" },
+      { "value": "B", "label": "60%" },
+      { "value": "C", "label": "70%" },
+      { "value": "D", "label": "80%" },
+      { "value": "E", "label": "90%" }
+    ]
+  },
+  {
+    "id": "q3",
+    "text": "You would prefer to use Semaglutide in patients with… (Select whichever is applicable)",
+    "type": "multiple",
+    "required": true,
+    "options": [
+      { "value": "A", "label": "MASH associated with Obesity only" },
+      { "value": "B", "label": "MASH associated with Obesity as well as overweight" },
+      { "value": "C", "label": "MASH with or without Obesity/overweight" }
+    ]
+  },
+  {
+    "id": "q4",
+    "text": "Which of the following patient groups would you prioritize for MASH screening… (Select whichever is applicable)",
+    "type": "multiple",
+    "required": true,
+    "options": [
+      { "value": "A", "label": "Patients with obesity" },
+      { "value": "B", "label": "Patients with type 2 diabetes mellitus (T2DM)" },
+      { "value": "C", "label": "Patients with metabolic syndrome" },
+      { "value": "D", "label": "Patients with dyslipidemia" },
+      { "value": "E", "label": "Patients with elevated liver enzymes (ALT/AST)" },
+      { "value": "F", "label": "Patients with a family history of liver disease" },
+      { "value": "G", "label": "Individuals with multiple cardiometabolic risk factors" }
+    ]
+  },
+  {
+    "id": "q5",
+    "text": "How would you rate the reliability of the FIB-4 score in your clinical practice?",
+    "type": "single",
+    "required": true,
+    "options": [
+      { "value": "A", "label": "Very reliable" },
+      { "value": "B", "label": "Reliable" },
+      { "value": "C", "label": "Moderately reliable" },
+      { "value": "D", "label": "Slightly reliable" },
+      { "value": "E", "label": "Not reliable" }
+    ]
+  },
+  {
+    "id": "q6",
+    "text": "Would you use Semaglutide in Lean MASH patients?",
+    "type": "single",
+    "required": true,
+    "options": [
+      { "value": "A", "label": "No" },
+      { "value": "B", "label": "Yes, with consistent monitoring of weight" }
+    ]
+  },
+  {
+    "id": "q7",
+    "text": "Based on your clinical experience, which dose of semaglutide is best tolerated by Indian patients with MASH?",
+    "type": "single",
+    "required": true,
+    "options": [
+      { "value": "A", "label": "2.4 mg" },
+      { "value": "B", "label": "1.7 mg" },
+      { "value": "C", "label": "1 mg" }
+    ]
+  },
+  {
+    "id": "q8",
+    "text": "What decision would you take regarding continuation of Semaglutide in patients with MASH after achieving adequate weight loss?",
+    "type": "single",
+    "required": true,
+    "options": [
+      { "value": "A", "label": "Continue Semaglutide with the same dose till reversal of Fibrosis to F0/F1" },
+      { "value": "B", "label": "Continue Semaglutide with a lower dose till reversal of Fibrosis to F0/F1" },
+      { "value": "C", "label": "Stop Semaglutide and shift the patient on Resmetirom / Saroglitazar / Vit K for reversal of Fibrosis to F0/F1" },
+      { "value": "D", "label": "Stop Semaglutide and shift the patient on Lifestyle modification only for reversal of Fibrosis to F0/F1" }
+    ]
+  },
+  {
+    "id": "q9",
+    "text": "How concerned are you about muscle loss in patients receiving semaglutide therapy?",
+    "type": "single",
+    "required": true,
+    "options": [
+      { "value": "A", "label": "Not concerned at all" },
+      { "value": "B", "label": "Slightly concerned" },
+      { "value": "C", "label": "Moderately concerned" },
+      { "value": "D", "label": "Highly concerned" },
+      { "value": "E", "label": "Extremely concerned / a major clinical concern" }
+    ]
+  },
+  {
+    "id": "q10",
+    "text": "How often do you prescribe nutritional supplements for your patients who are receiving semaglutide therapy?",
+    "type": "single",
+    "required": true,
+    "options": [
+      { "value": "A", "label": "Never" },
+      { "value": "B", "label": "Rarely (in <25% of patients)" },
+      { "value": "C", "label": "Sometimes (in 25–50% of patients)" },
+      { "value": "D", "label": "Frequently (in 50–75% of patients)" },
+      { "value": "E", "label": "Almost always (in >75% of patients)" }
+    ]
+  },
+  {
+    "id": "q11",
+    "text": "How would you rate the efficacy of semaglutide in patients with MASH?",
+    "type": "single",
+    "required": true,
+    "options": [
+      { "value": "A", "label": "Highly effective" },
+      { "value": "B", "label": "Moderately effective" },
+      { "value": "C", "label": "Slightly effective" },
+      { "value": "D", "label": "Minimally effective" },
+      { "value": "E", "label": "Not effective" }
+    ]
+  },
+  {
+    "id": "q12",
+    "text": "Which is the most common adverse effect(s) you have come across with Semaglutide in your patients with MASH? (Select whichever is applicable)",
+    "type": "multiple",
+    "required": true,
+    "options": [
+      { "value": "A", "label": "Vomiting" },
+      { "value": "B", "label": "Diarrhoea" },
+      { "value": "C", "label": "Constipation" },
+      { "value": "D", "label": "Abdominal pain" },
+      { "value": "E", "label": "Bloating / Fullness" }
+    ]
+  },
+  {
+    "id": "q13",
+    "text": "How would you assess the tolerability of semaglutide in patients with MASH?",
+    "type": "single",
+    "required": true,
+    "options": [
+      { "value": "A", "label": "Excellent tolerability" },
+      { "value": "B", "label": "Good tolerability" },
+      { "value": "C", "label": "Moderate tolerability" },
+      { "value": "D", "label": "Poor tolerability" },
+      { "value": "E", "label": "Very poor tolerability" }
+    ]
+  }
+]
