@@ -75,34 +75,36 @@ export default function SurveyPage() {
     doctorName.trim() !== "" &&
     questions.every((q) => !q.required || isAnswered(answers[q.id]));
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setTouched(true);
     if (!isFormValid) return;
     setSubmitting(true);
-    setTimeout(() => {
-      // Persist to localStorage so admin page can read it
-      const record = {
-        id: crypto.randomUUID(),
-        doctorName,
-        answers,
-        submittedAt: new Date().toISOString(),
-      };
-      try {
-        const existing = JSON.parse(
-          localStorage.getItem("sema_survey_submissions") || "[]",
-        );
-        existing.unshift(record);
-        localStorage.setItem(
-          "sema_survey_submissions",
-          JSON.stringify(existing),
-        );
-      } catch {
-        /* silently ignore storage errors */
+
+    const record = {
+      id: crypto.randomUUID(),
+      doctorName,
+      answers,
+      submittedAt: new Date().toISOString(),
+    };
+
+    try {
+      const res = await fetch("/api/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(record),
+      });
+      const result = await res.json();
+      if (!res.ok || !result.success) {
+        throw new Error(result.error || "Submission failed");
       }
-      setSubmitting(false);
       setSubmitted(true);
-    }, 900);
+    } catch (err) {
+      console.error("Submit error:", err);
+      alert("Failed to submit. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   /* ── Thank-You ─────────────────────────────────────────────────── */

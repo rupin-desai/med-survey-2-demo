@@ -174,20 +174,26 @@ export default function AdminPage() {
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
   const [activeTab, setActiveTab] = useState("responses");
 
-  /* Load from localStorage after auth */
+  /* Load from database after auth */
   useEffect(() => {
     if (!authed) return;
-    let parsed: Submission[] = [];
-    try {
-      const raw = localStorage.getItem("sema_survey_submissions");
-      parsed = raw ? JSON.parse(raw) : [];
-    } catch {
-      parsed = [];
+    async function fetchSubmissions() {
+      try {
+        const res = await fetch("/api/submissions");
+        const data = await res.json();
+        startTransition(() => {
+          setSubmissions(Array.isArray(data) ? data : []);
+          setLoading(false);
+        });
+      } catch (err) {
+        console.error("Failed to load submissions:", err);
+        startTransition(() => {
+          setSubmissions([]);
+          setLoading(false);
+        });
+      }
     }
-    startTransition(() => {
-      setSubmissions(parsed);
-      setLoading(false);
-    });
+    fetchSubmissions();
   }, [authed]);
 
   function handleLogin(e: React.FormEvent) {
@@ -200,18 +206,39 @@ export default function AdminPage() {
     }
   }
 
-  function handleDelete(id: string) {
-    const updated = submissions.filter((s) => s.id !== id);
-    setSubmissions(updated);
-    localStorage.setItem("sema_survey_submissions", JSON.stringify(updated));
-    if (expandedRow === id) setExpandedRow(null);
+  async function handleDelete(id: string) {
+    try {
+      const res = await fetch("/api/submissions", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      const result = await res.json();
+      if (result.success) {
+        setSubmissions((prev) => prev.filter((s) => s.id !== id));
+        if (expandedRow === id) setExpandedRow(null);
+      }
+    } catch (err) {
+      console.error("Delete error:", err);
+    }
   }
 
-  function handleClearAll() {
+  async function handleClearAll() {
     if (!confirm("Delete ALL submissions? This cannot be undone.")) return;
-    setSubmissions([]);
-    localStorage.removeItem("sema_survey_submissions");
-    setExpandedRow(null);
+    try {
+      const res = await fetch("/api/submissions", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ clearAll: true }),
+      });
+      const result = await res.json();
+      if (result.success) {
+        setSubmissions([]);
+        setExpandedRow(null);
+      }
+    } catch (err) {
+      console.error("Clear all error:", err);
+    }
   }
 
   function handleExportDataXlsx() {
