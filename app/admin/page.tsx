@@ -30,7 +30,6 @@ import {
   LogIn,
   ArrowLeft,
   Search,
-  Download,
   Trash2,
   Users,
   ClipboardList,
@@ -45,9 +44,11 @@ import {
   TableIcon,
   Hash,
   TrendingUp,
+  FileSpreadsheet,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import QuestionAnalyticsCard from "./analytics-card";
+import * as XLSX from "xlsx";
 
 /* ── Types ──────────────────────────────────────────────────────── */
 interface QuestionDef {
@@ -213,31 +214,138 @@ export default function AdminPage() {
     setExpandedRow(null);
   }
 
-  function handleExport() {
-    const rows = [
-      [
-        "#",
-        "Doctor Name",
-        "Submitted At",
-        ...questions.map((q) => COL_HEADERS[q.id] ?? q.id),
-      ],
-      ...filteredSorted.map((s, i) => [
-        String(i + 1),
-        s.doctorName,
-        new Date(s.submittedAt).toLocaleString(),
-        ...questions.map((q) => formatAnswer(q.id, s.answers[q.id])),
-      ]),
+  function handleExportDataXlsx() {
+    const header = [
+      "#",
+      "Doctor Name",
+      "Submitted At",
+      ...questions.map((q) => COL_HEADERS[q.id] ?? q.id),
     ];
-    const csv = rows
-      .map((r) => r.map((c) => `"${c.replace(/"/g, '""')}"`).join(","))
-      .join("\n");
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `sema_survey_${new Date().toISOString().split("T")[0]}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+    const rows = filteredSorted.map((s, i) => [
+      i + 1,
+      s.doctorName,
+      new Date(s.submittedAt).toLocaleString(),
+      ...questions.map((q) => formatAnswer(q.id, s.answers[q.id])),
+    ]);
+    const ws = XLSX.utils.aoa_to_sheet([header, ...rows]);
+
+    /* Auto-size columns */
+    ws["!cols"] = header.map((h, ci) => {
+      const maxLen = Math.max(
+        h.length,
+        ...rows.map((r) => String(r[ci] ?? "").length),
+      );
+      return { wch: Math.min(maxLen + 2, 50) };
+    });
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Responses");
+    XLSX.writeFile(
+      wb,
+      `sema_survey_data_${new Date().toISOString().split("T")[0]}.xlsx`,
+    );
+  }
+
+  function handleExportAnalyticsXlsx() {
+    const wb = XLSX.utils.book_new();
+
+    /* ── Sheet 1: Summary ─────────────────────────────── */
+    const summaryRows: (string | number)[][] = [
+      ["Semaglutide MASH Survey — Analytics Summary"],
+      [],
+      ["Total Responses", submissions.length],
+      ["Total Questions", questions.length],
+      [
+        "Completion %",
+        submissions.length > 0
+          ? `${Math.round(
+              (analytics.filter((a) => a.totalAnswered === submissions.length)
+                .length /
+                questions.length) *
+                100,
+            )}%`
+          : "0%",
+      ],
+      [`Generated`, new Date().toLocaleString()],
+    ];
+    const wsSummary = XLSX.utils.aoa_to_sheet(summaryRows);
+    wsSummary["!cols"] = [{ wch: 22 }, { wch: 30 }];
+    XLSX.utils.book_append_sheet(wb, wsSummary, "Summary");
+
+    /* ── Sheet 2: Per-Question Breakdown ──────────────── */
+    const detailHeader = [
+      "Q#",
+      "Question",
+      "Type",
+      "Total Answered",
+      "Option",
+      "Option Label",
+      "Count",
+      "Percentage",
+      "Most Popular",
+    ];
+    const detailRows: (string | number)[][] = [];
+    analytics.forEach((a, qi) => {
+      a.optionStats.forEach((o) => {
+        detailRows.push([
+          `Q${qi + 1}`,
+          a.question.text,
+          a.question.type === "multiple" ? "Multiple Choice" : "Single Choice",
+          a.totalAnswered,
+          o.value,
+          o.label,
+          o.count,
+          `${o.percent}%`,
+          o.value === a.topOption.value && o.count > 0 ? "★" : "",
+        ]);
+      });
+    });
+    const wsDetail = XLSX.utils.aoa_to_sheet([detailHeader, ...detailRows]);
+    wsDetail["!cols"] = [
+      { wch: 5 },
+      { wch: 60 },
+      { wch: 16 },
+      { wch: 15 },
+      { wch: 7 },
+      { wch: 45 },
+      { wch: 7 },
+      { wch: 12 },
+      { wch: 12 },
+    ];
+    XLSX.utils.book_append_sheet(wb, wsDetail, "Question Breakdown");
+
+    /* ── Sheet 3: Top Answers ─────────────────────────── */
+    const topHeader = [
+      "Q#",
+      "Question",
+      "Most Popular Option",
+      "Option Label",
+      "Count",
+      "Percentage",
+    ];
+    const topRows = analytics.map((a, qi) => [
+      `Q${qi + 1}`,
+      a.question.text,
+      a.topOption.value,
+      a.topOption.label,
+      a.topOption.count,
+      `${a.topOption.percent}%`,
+    ]);
+    const wsTop = XLSX.utils.aoa_to_sheet([topHeader, ...topRows]);
+    wsTop["!cols"] = [
+      { wch: 5 },
+      { wch: 60 },
+      { wch: 18 },
+      { wch: 45 },
+      { wch: 7 },
+      { wch: 12 },
+    ];
+    XLSX.utils.book_append_sheet(wb, wsTop, "Top Answers");
+
+    XLSX.writeFile(
+      wb,
+      `sema_survey_analytics_${new Date().toISOString().split("T")[0]}.xlsx`,
+    );
   }
 
   function toggleSort(key: "doctorName" | "submittedAt") {
@@ -361,12 +469,22 @@ export default function AdminPage() {
             <Button
               variant="outline"
               size="sm"
-              onClick={handleExport}
+              onClick={handleExportDataXlsx}
               disabled={filteredSorted.length === 0}
               className="hidden gap-1.5 border-border sm:inline-flex"
             >
-              <Download className="h-3.5 w-3.5" />
-              Export CSV
+              <FileSpreadsheet className="h-3.5 w-3.5" />
+              Data .xlsx
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleExportAnalyticsXlsx}
+              disabled={submissions.length === 0}
+              className="hidden gap-1.5 border-border sm:inline-flex"
+            >
+              <BarChart3 className="h-3.5 w-3.5" />
+              Analytics .xlsx
             </Button>
             <Button
               variant="outline"
@@ -445,15 +563,24 @@ export default function AdminPage() {
         </div>
 
         {/* Mobile action buttons */}
-        <div className="flex gap-2 sm:hidden">
+        <div className="flex flex-wrap gap-2 sm:hidden">
           <Button
             size="sm"
             variant="outline"
-            onClick={handleExport}
+            onClick={handleExportDataXlsx}
             disabled={filteredSorted.length === 0}
             className="flex-1 gap-1.5 border-border"
           >
-            <Download className="h-3.5 w-3.5" /> Export CSV
+            <FileSpreadsheet className="h-3.5 w-3.5" /> Data .xlsx
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleExportAnalyticsXlsx}
+            disabled={submissions.length === 0}
+            className="flex-1 gap-1.5 border-border"
+          >
+            <BarChart3 className="h-3.5 w-3.5" /> Analytics .xlsx
           </Button>
           <Button
             size="sm"
@@ -765,63 +892,75 @@ export default function AdminPage() {
               <div className="space-y-5">
                 {/* Summary bar */}
                 <Card className="border-border shadow-sm">
-                  <CardContent className="flex flex-wrap items-center gap-6 px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
-                        <Users className="h-4 w-4 text-primary" />
+                  <CardContent className="flex flex-wrap items-center justify-between gap-4 px-6 py-4">
+                    <div className="flex flex-wrap items-center gap-6">
+                      <div className="flex items-center gap-2">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+                          <Users className="h-4 w-4 text-primary" />
+                        </div>
+                        <div>
+                          <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                            Responses
+                          </p>
+                          <p className="text-lg font-bold text-foreground leading-tight">
+                            {submissions.length}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                          Responses
-                        </p>
-                        <p className="text-lg font-bold text-foreground leading-tight">
-                          {submissions.length}
-                        </p>
+                      <Separator
+                        orientation="vertical"
+                        className="hidden h-8 sm:block"
+                      />
+                      <div className="flex items-center gap-2">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-100">
+                          <Hash className="h-4 w-4 text-violet-600" />
+                        </div>
+                        <div>
+                          <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                            Questions
+                          </p>
+                          <p className="text-lg font-bold text-foreground leading-tight">
+                            {questions.length}
+                          </p>
+                        </div>
+                      </div>
+                      <Separator
+                        orientation="vertical"
+                        className="hidden h-8 sm:block"
+                      />
+                      <div className="flex items-center gap-2">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-100">
+                          <TrendingUp className="h-4 w-4 text-amber-600" />
+                        </div>
+                        <div>
+                          <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                            Completion
+                          </p>
+                          <p className="text-lg font-bold text-foreground leading-tight">
+                            {submissions.length > 0
+                              ? Math.round(
+                                  (analytics.filter(
+                                    (a) =>
+                                      a.totalAnswered === submissions.length,
+                                  ).length /
+                                    questions.length) *
+                                    100,
+                                )
+                              : 0}
+                            %
+                          </p>
+                        </div>
                       </div>
                     </div>
-                    <Separator
-                      orientation="vertical"
-                      className="hidden h-8 sm:block"
-                    />
-                    <div className="flex items-center gap-2">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-100">
-                        <Hash className="h-4 w-4 text-violet-600" />
-                      </div>
-                      <div>
-                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                          Questions
-                        </p>
-                        <p className="text-lg font-bold text-foreground leading-tight">
-                          {questions.length}
-                        </p>
-                      </div>
-                    </div>
-                    <Separator
-                      orientation="vertical"
-                      className="hidden h-8 sm:block"
-                    />
-                    <div className="flex items-center gap-2">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-100">
-                        <TrendingUp className="h-4 w-4 text-amber-600" />
-                      </div>
-                      <div>
-                        <p className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                          Completion
-                        </p>
-                        <p className="text-lg font-bold text-foreground leading-tight">
-                          {submissions.length > 0
-                            ? Math.round(
-                                (analytics.filter(
-                                  (a) => a.totalAnswered === submissions.length,
-                                ).length /
-                                  questions.length) *
-                                  100,
-                              )
-                            : 0}
-                          %
-                        </p>
-                      </div>
-                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleExportAnalyticsXlsx}
+                      className="gap-1.5 border-border"
+                    >
+                      <FileSpreadsheet className="h-3.5 w-3.5" />
+                      Export Analytics
+                    </Button>
                   </CardContent>
                 </Card>
 
