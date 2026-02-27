@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, startTransition } from "react";
+import { useEffect, useState, startTransition, useCallback, useRef } from "react";
 import Link from "next/link";
 import questionsData from "@/data/questions.json";
 import { Button } from "@/components/ui/button";
@@ -71,16 +71,13 @@ const COL_HEADERS: Record<string, string> = {
   q1: "MASH pts/mo",
   q2: "Obesity %",
   q3: "Sema indication",
-  q4: "Screening priority",
-  q5: "FIB-4 reliability",
-  q6: "Lean MASH",
-  q7: "Best dose",
-  q8: "Post weight-loss",
-  q9: "Muscle loss concern",
-  q10: "Nutritional suppl.",
-  q11: "Efficacy rating",
-  q12: "Adverse effects",
-  q13: "Tolerability",
+  q4: "Lean MASH",
+  q5: "Best dose",
+  q6: "Post weight-loss",
+  q7: "Muscle loss concern",
+  q8: "Nutritional suppl.",
+  q9: "Efficacy rating",
+  q10: "Adverse effects",
 };
 
 function formatAnswer(
@@ -167,6 +164,8 @@ export default function AdminPage() {
   /* data */
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isLive, setIsLive] = useState(true);
+  const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   /* ui */
   const [search, setSearch] = useState("");
@@ -177,27 +176,42 @@ export default function AdminPage() {
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
   const [activeTab, setActiveTab] = useState("responses");
 
-  /* Load from database after auth */
-  useEffect(() => {
-    if (!authed) return;
-    async function fetchSubmissions() {
-      try {
-        const res = await fetch("/api/submissions");
-        const data = await res.json();
-        startTransition(() => {
-          setSubmissions(Array.isArray(data) ? data : []);
-          setLoading(false);
-        });
-      } catch (err) {
-        console.error("Failed to load submissions:", err);
+  /* Fetch submissions from API */
+  const fetchSubmissions = useCallback(async (isInitial = false) => {
+    try {
+      const res = await fetch("/api/submissions");
+      const data = await res.json();
+      startTransition(() => {
+        setSubmissions(Array.isArray(data) ? data : []);
+        if (isInitial) setLoading(false);
+      });
+    } catch (err) {
+      console.error("Failed to load submissions:", err);
+      if (isInitial) {
         startTransition(() => {
           setSubmissions([]);
           setLoading(false);
         });
       }
     }
-    fetchSubmissions();
-  }, [authed]);
+  }, []);
+
+  /* Load once + start polling after auth */
+  useEffect(() => {
+    if (!authed) return;
+
+    // Initial fetch
+    fetchSubmissions(true);
+
+    // Poll every 10 seconds for live updates
+    if (isLive) {
+      pollRef.current = setInterval(() => fetchSubmissions(false), 10_000);
+    }
+
+    return () => {
+      if (pollRef.current) clearInterval(pollRef.current);
+    };
+  }, [authed, isLive, fetchSubmissions]);
 
   function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -497,6 +511,25 @@ export default function AdminPage() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setIsLive((v) => !v)}
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors",
+                isLive
+                  ? "border-emerald-300 bg-emerald-50 text-emerald-700"
+                  : "border-border bg-muted/50 text-muted-foreground",
+              )}
+              title={isLive ? "Auto-refreshing every 10s – click to pause" : "Paused – click to resume live updates"}
+            >
+              <span
+                className={cn(
+                  "h-1.5 w-1.5 rounded-full",
+                  isLive ? "bg-emerald-500 animate-pulse" : "bg-muted-foreground",
+                )}
+              />
+              {isLive ? "Live" : "Paused"}
+            </button>
             <Button
               variant="outline"
               size="sm"
