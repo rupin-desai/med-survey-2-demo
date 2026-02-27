@@ -71,7 +71,8 @@ export default function SurveyPage() {
 
   const isReviewStep = step === questions.length + 1;
   const isNameStep = step === 0;
-  const currentQuestion = !isNameStep && !isReviewStep ? questions[step - 1] : null;
+  const currentQuestion =
+    !isNameStep && !isReviewStep ? questions[step - 1] : null;
 
   const handleSingle = useCallback((qId: string, value: string) => {
     setAnswers((prev) => ({ ...prev, [qId]: value }));
@@ -198,9 +199,7 @@ export default function SurveyPage() {
               variant="outline"
               className="ml-auto hidden shrink-0 border-primary/30 text-primary sm:inline-flex"
             >
-              {isReviewStep
-                ? "Review"
-                : `${step + 1} / ${TOTAL_STEPS}`}
+              {isReviewStep ? "Review" : `${step + 1} / ${TOTAL_STEPS}`}
             </Badge>
           </div>
 
@@ -220,7 +219,6 @@ export default function SurveyPage() {
         </div>
 
         <div className="px-6 pb-10 pt-8 sm:px-10">
-
           {/* ── Step 0: Doctor Name ─────────────────────────────── */}
           {isNameStep && (
             <div className="space-y-6">
@@ -243,7 +241,12 @@ export default function SurveyPage() {
                   autoFocus
                   value={doctorName}
                   onChange={(e) => setDoctorName(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); handleNext(); } }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleNext();
+                    }
+                  }}
                   placeholder="Dr. Full Name"
                   className={cn(
                     "h-11 border-border bg-card text-base transition-shadow focus-visible:ring-primary/30",
@@ -267,7 +270,8 @@ export default function SurveyPage() {
               {(() => {
                 const q = currentQuestion;
                 const answer = answers[q.id];
-                const unanswered = stepTouched && q.required && !isAnswered(answer);
+                const unanswered =
+                  stepTouched && q.required && !isAnswered(answer);
                 const isMultiple = q.type === "multiple";
 
                 return (
@@ -308,7 +312,9 @@ export default function SurveyPage() {
                             </Badge>
                           )}
                           {q.required && (
-                            <span className="text-[10px] text-destructive font-medium">Required</span>
+                            <span className="text-[10px] text-destructive font-medium">
+                              Required
+                            </span>
                           )}
                         </div>
                       </div>
@@ -366,7 +372,9 @@ export default function SurveyPage() {
           {isReviewStep && (
             <div className="space-y-5">
               <div className="text-center mb-2">
-                <h2 className="text-lg font-bold text-foreground">Review Your Answers</h2>
+                <h2 className="text-lg font-bold text-foreground">
+                  Review Your Answers
+                </h2>
                 <p className="text-xs text-muted-foreground mt-1">
                   Please review before submitting. Click any answer to edit.
                 </p>
@@ -380,8 +388,12 @@ export default function SurveyPage() {
               >
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-xs font-medium text-muted-foreground">Doctor Name</p>
-                    <p className="mt-0.5 text-sm font-semibold text-foreground">{doctorName}</p>
+                    <p className="text-xs font-medium text-muted-foreground">
+                      Doctor Name
+                    </p>
+                    <p className="mt-0.5 text-sm font-semibold text-foreground">
+                      {doctorName}
+                    </p>
                   </div>
                   <Edit3 className="h-3.5 w-3.5 text-muted-foreground" />
                 </div>
@@ -393,11 +405,12 @@ export default function SurveyPage() {
               <div className="space-y-2">
                 {questions.map((q, idx) => {
                   const answer = answers[q.id];
-                  const display = !answer || (Array.isArray(answer) && answer.length === 0)
-                    ? "Not answered"
-                    : Array.isArray(answer)
-                      ? answer.map((v) => getOptionLabel(q, v)).join(" · ")
-                      : getOptionLabel(q, answer);
+                  const display =
+                    !answer || (Array.isArray(answer) && answer.length === 0)
+                      ? "Not answered"
+                      : Array.isArray(answer)
+                        ? answer.map((v) => getOptionLabel(q, v)).join(" · ")
+                        : getOptionLabel(q, answer);
                   const hasAnswer = isAnswered(answer);
 
                   return (
@@ -418,12 +431,18 @@ export default function SurveyPage() {
                             <span className="flex h-4 w-4 items-center justify-center rounded-full bg-primary/10 text-[9px] font-bold text-primary">
                               {idx + 1}
                             </span>
-                            {q.text.length > 60 ? q.text.slice(0, 60) + "…" : q.text}
+                            {q.text.length > 60
+                              ? q.text.slice(0, 60) + "…"
+                              : q.text}
                           </p>
-                          <p className={cn(
-                            "mt-1 text-sm font-medium",
-                            hasAnswer ? "text-foreground" : "text-destructive",
-                          )}>
+                          <p
+                            className={cn(
+                              "mt-1 text-sm font-medium",
+                              hasAnswer
+                                ? "text-foreground"
+                                : "text-destructive",
+                            )}
+                          >
                             {display}
                           </p>
                         </div>
@@ -439,7 +458,8 @@ export default function SurveyPage() {
                 <div className="flex items-start gap-3 rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3">
                   <AlertCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-destructive" />
                   <p className="text-sm text-destructive">
-                    {totalRequired - answeredCount} required field(s) still need an answer.
+                    {totalRequired - answeredCount} required field(s) still need
+                    an answer.
                   </p>
                 </div>
               )}
