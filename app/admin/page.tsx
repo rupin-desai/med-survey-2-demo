@@ -150,8 +150,8 @@ function computeAnalytics(subs: Submission[]) {
   });
 }
 
-const ADMIN_USER = "survey-navy123@admin";
-const ADMIN_PASS = "survey-navy123";
+const ADMIN_USER = "Lupin@admin";
+const ADMIN_PASS = "semaglutide";
 
 /* ── Admin Page ──────────────────────────────────────────────────── */
 export default function AdminPage() {
