@@ -1,19 +1,17 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import {
   ClipboardList,
   User,
   CheckCircle2,
   AlertCircle,
-  Loader2,
   RotateCcw,
   ChevronRight,
   ChevronLeft,
   Stethoscope,
   CheckSquare2,
   CircleDot,
-  Send,
   Edit3,
 } from "lucide-react";
 import questionsData from "@/data/questions.json";
@@ -59,9 +57,9 @@ export default function SurveyPage() {
   const [doctorName, setDoctorName] = useState("");
   const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
   const [submitted, setSubmitted] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
   const [step, setStep] = useState(0);
   const [stepTouched, setStepTouched] = useState(false);
+  const submissionIdRef = useRef<string>(crypto.randomUUID());
 
   const answeredCount =
     (doctorName.trim() ? 1 : 0) +
@@ -98,29 +96,14 @@ export default function SurveyPage() {
     return true;
   }
 
-  function handleNext() {
-    setStepTouched(true);
-    if (!isCurrentStepValid()) return;
-    setStepTouched(false);
-    setStep((s) => Math.min(s + 1, TOTAL_STEPS - 1));
-  }
-
-  function handleBack() {
-    setStepTouched(false);
-    setStep((s) => Math.max(s - 1, 0));
-  }
-
-  function goToStep(s: number) {
-    setStepTouched(false);
-    setStep(s);
-  }
-
-  async function handleSubmit() {
-    setSubmitting(true);
+  /** Submit the current step's answer to the backend */
+  async function submitStepAnswer(
+    currentAnswers: Record<string, string | string[]>,
+  ) {
     const record = {
-      id: crypto.randomUUID(),
+      id: submissionIdRef.current,
       doctorName,
-      answers,
+      answers: currentAnswers,
       submittedAt: new Date().toISOString(),
     };
 
@@ -134,13 +117,45 @@ export default function SurveyPage() {
       if (!res.ok || !result.success) {
         throw new Error(result.error || "Submission failed");
       }
-      setSubmitted(true);
     } catch (err) {
       console.error("Submit error:", err);
-      alert("Failed to submit. Please try again.");
-    } finally {
-      setSubmitting(false);
+      // Silently log – we don't block navigation for save failures
     }
+  }
+
+  function handleNext() {
+    setStepTouched(true);
+    if (!isCurrentStepValid()) return;
+    setStepTouched(false);
+
+    // Submit current step data to backend
+    if (isNameStep) {
+      // Doctor name step – create/update the submission record
+      submitStepAnswer({});
+    } else if (currentQuestion) {
+      // Question step – send only this question's answer
+      const qId = currentQuestion.id;
+      const ans = answers[qId];
+      if (ans !== undefined) {
+        submitStepAnswer({ [qId]: ans });
+      }
+    }
+
+    setStep((s) => Math.min(s + 1, TOTAL_STEPS - 1));
+  }
+
+  function handleBack() {
+    setStepTouched(false);
+    setStep((s) => Math.max(s - 1, 0));
+  }
+
+  function goToStep(s: number) {
+    setStepTouched(false);
+    setStep(s);
+  }
+
+  async function handleFinish() {
+    setSubmitted(true);
   }
 
   /* ── Thank-You ─────────────────────────────────────────────────── */
@@ -167,6 +182,7 @@ export default function SurveyPage() {
               setSubmitted(false);
               setStepTouched(false);
               setStep(0);
+              submissionIdRef.current = crypto.randomUUID();
             }}
           >
             <RotateCcw className="h-4 w-4" />
@@ -376,7 +392,8 @@ export default function SurveyPage() {
                   Review Your Answers
                 </h2>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Please review before submitting. Click any answer to edit.
+                  Your answers have been saved. Review below and click any
+                  answer to edit.
                 </p>
               </div>
 
@@ -487,22 +504,13 @@ export default function SurveyPage() {
             {isReviewStep ? (
               <Button
                 type="button"
-                onClick={handleSubmit}
-                disabled={submitting || answeredCount < totalRequired}
+                onClick={handleFinish}
+                disabled={answeredCount < totalRequired}
                 size="lg"
                 className="gap-2 bg-primary text-white shadow-md hover:bg-primary-dark hover:scale-[1.01] active:scale-[0.99] disabled:opacity-60"
               >
-                {submitting ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Submitting…
-                  </>
-                ) : (
-                  <>
-                    <Send className="h-4 w-4" />
-                    Submit Survey
-                  </>
-                )}
+                <CheckCircle2 className="h-4 w-4" />
+                Finish Survey
               </Button>
             ) : (
               <Button
