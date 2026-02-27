@@ -32,7 +32,10 @@
     "required": true,
     "options": [
       { "value": "A", "label": "MASH associated with Obesity only" },
-      { "value": "B", "label": "MASH associated with Obesity as well as overweight" },
+      {
+        "value": "B",
+        "label": "MASH associated with Obesity as well as overweight"
+      },
       { "value": "C", "label": "MASH with or without Obesity/overweight" }
     ]
   },
@@ -43,12 +46,24 @@
     "required": true,
     "options": [
       { "value": "A", "label": "Patients with obesity" },
-      { "value": "B", "label": "Patients with type 2 diabetes mellitus (T2DM)" },
+      {
+        "value": "B",
+        "label": "Patients with type 2 diabetes mellitus (T2DM)"
+      },
       { "value": "C", "label": "Patients with metabolic syndrome" },
       { "value": "D", "label": "Patients with dyslipidemia" },
-      { "value": "E", "label": "Patients with elevated liver enzymes (ALT/AST)" },
-      { "value": "F", "label": "Patients with a family history of liver disease" },
-      { "value": "G", "label": "Individuals with multiple cardiometabolic risk factors" }
+      {
+        "value": "E",
+        "label": "Patients with elevated liver enzymes (ALT/AST)"
+      },
+      {
+        "value": "F",
+        "label": "Patients with a family history of liver disease"
+      },
+      {
+        "value": "G",
+        "label": "Individuals with multiple cardiometabolic risk factors"
+      }
     ]
   },
   {
@@ -91,10 +106,22 @@
     "type": "single",
     "required": true,
     "options": [
-      { "value": "A", "label": "Continue Semaglutide with the same dose till reversal of Fibrosis to F0/F1" },
-      { "value": "B", "label": "Continue Semaglutide with a lower dose till reversal of Fibrosis to F0/F1" },
-      { "value": "C", "label": "Stop Semaglutide and shift the patient on Resmetirom / Saroglitazar / Vit K for reversal of Fibrosis to F0/F1" },
-      { "value": "D", "label": "Stop Semaglutide and shift the patient on Lifestyle modification only for reversal of Fibrosis to F0/F1" }
+      {
+        "value": "A",
+        "label": "Continue Semaglutide with the same dose till reversal of Fibrosis to F0/F1"
+      },
+      {
+        "value": "B",
+        "label": "Continue Semaglutide with a lower dose till reversal of Fibrosis to F0/F1"
+      },
+      {
+        "value": "C",
+        "label": "Stop Semaglutide and shift the patient on Resmetirom / Saroglitazar / Vit K for reversal of Fibrosis to F0/F1"
+      },
+      {
+        "value": "D",
+        "label": "Stop Semaglutide and shift the patient on Lifestyle modification only for reversal of Fibrosis to F0/F1"
+      }
     ]
   },
   {
@@ -107,7 +134,10 @@
       { "value": "B", "label": "Slightly concerned" },
       { "value": "C", "label": "Moderately concerned" },
       { "value": "D", "label": "Highly concerned" },
-      { "value": "E", "label": "Extremely concerned / a major clinical concern" }
+      {
+        "value": "E",
+        "label": "Extremely concerned / a major clinical concern"
+      }
     ]
   },
   {

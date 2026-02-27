@@ -81,6 +81,25 @@ export default function SurveyPage() {
     if (!isFormValid) return;
     setSubmitting(true);
     setTimeout(() => {
+      // Persist to localStorage so admin page can read it
+      const record = {
+        id: crypto.randomUUID(),
+        doctorName,
+        answers,
+        submittedAt: new Date().toISOString(),
+      };
+      try {
+        const existing = JSON.parse(
+          localStorage.getItem("sema_survey_submissions") || "[]",
+        );
+        existing.unshift(record);
+        localStorage.setItem(
+          "sema_survey_submissions",
+          JSON.stringify(existing),
+        );
+      } catch {
+        /* silently ignore storage errors */
+      }
       setSubmitting(false);
       setSubmitted(true);
     }, 900);
@@ -94,7 +113,9 @@ export default function SurveyPage() {
           <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-success-light">
             <CheckCircle2 className="h-10 w-10 text-success" strokeWidth={2} />
           </div>
-          <h1 className="mb-2 text-2xl font-bold text-foreground">Thank You!</h1>
+          <h1 className="mb-2 text-2xl font-bold text-foreground">
+            Thank You!
+          </h1>
           <p className="text-sm leading-relaxed text-muted-foreground">
             Your survey response has been recorded successfully. We appreciate
             your valuable clinical insights.
@@ -121,7 +142,6 @@ export default function SurveyPage() {
   return (
     <div className="flex min-h-screen items-start justify-center px-4 py-8 sm:py-12">
       <div className="w-full max-w-2xl animate-fade-in-up rounded-2xl bg-card shadow-[var(--shadow-lg)]">
-
         {/* ── Sticky Header ── */}
         <div className="sticky top-0 z-10 rounded-t-2xl border-b border-border bg-card/95 px-6 py-5 backdrop-blur-sm sm:px-10">
           <div className="flex items-center gap-3">
@@ -147,21 +167,28 @@ export default function SurveyPage() {
           {/* Progress */}
           <div className="mt-4 space-y-1.5">
             <div className="flex justify-between text-xs font-medium text-muted-foreground">
-              <span>{answeredCount} of {totalRequired} answered</span>
+              <span>
+                {answeredCount} of {totalRequired} answered
+              </span>
               <span className="font-semibold text-primary">{progressPct}%</span>
             </div>
-            <Progress value={progressPct} className="h-2 bg-primary/10 [&>div]:bg-gradient-to-r [&>div]:from-primary [&>div]:to-teal-400" />
+            <Progress
+              value={progressPct}
+              className="h-2 bg-primary/10 [&>div]:bg-gradient-to-r [&>div]:from-primary [&>div]:to-teal-400"
+            />
           </div>
         </div>
 
         <div className="px-6 pb-10 pt-8 sm:px-10">
           <form onSubmit={handleSubmit} className="space-y-8" noValidate>
-
             {/* ── Doctor Name ── */}
             <div className="rounded-xl border border-border bg-muted/40 p-5">
               <div className="mb-1 flex items-center gap-2">
                 <User className="h-4 w-4 text-primary" />
-                <Label htmlFor="doctor-name" className="text-sm font-semibold text-foreground">
+                <Label
+                  htmlFor="doctor-name"
+                  className="text-sm font-semibold text-foreground"
+                >
                   Doctor Name <span className="text-destructive">*</span>
                 </Label>
               </div>
@@ -176,7 +203,9 @@ export default function SurveyPage() {
                 placeholder="Dr. Full Name"
                 className={cn(
                   "h-11 border-border bg-card text-base transition-shadow focus-visible:ring-primary/30",
-                  touched && !doctorName.trim() && "border-destructive focus-visible:ring-destructive/20"
+                  touched &&
+                    !doctorName.trim() &&
+                    "border-destructive focus-visible:ring-destructive/20",
                 )}
               />
               {touched && !doctorName.trim() && (
@@ -203,8 +232,8 @@ export default function SurveyPage() {
                       unanswered
                         ? "border-destructive/40 bg-destructive/5 shadow-sm"
                         : isAnswered(answer)
-                        ? "border-primary/30 bg-primary/5 shadow-sm"
-                        : "border-border bg-card hover:border-primary/20 hover:shadow-sm"
+                          ? "border-primary/30 bg-primary/5 shadow-sm"
+                          : "border-border bg-card hover:border-primary/20 hover:shadow-sm",
                     )}
                   >
                     {/* Question header */}
@@ -218,11 +247,18 @@ export default function SurveyPage() {
                         </p>
                         <div className="mt-1.5 flex items-center gap-2">
                           {isMultiple ? (
-                            <Badge variant="outline" className="gap-1 border-primary/30 py-0 text-[10px] text-primary">
-                              <CheckSquare2 className="h-3 w-3" /> Select all that apply
+                            <Badge
+                              variant="outline"
+                              className="gap-1 border-primary/30 py-0 text-[10px] text-primary"
+                            >
+                              <CheckSquare2 className="h-3 w-3" /> Select all
+                              that apply
                             </Badge>
                           ) : (
-                            <Badge variant="outline" className="gap-1 border-muted-foreground/30 py-0 text-[10px] text-muted-foreground">
+                            <Badge
+                              variant="outline"
+                              className="gap-1 border-muted-foreground/30 py-0 text-[10px] text-muted-foreground"
+                            >
                               <CircleDot className="h-3 w-3" /> Choose one
                             </Badge>
                           )}
@@ -240,7 +276,8 @@ export default function SurveyPage() {
                         const isChecked =
                           q.type === "single"
                             ? answer === opt.value
-                            : Array.isArray(answer) && answer.includes(opt.value);
+                            : Array.isArray(answer) &&
+                              answer.includes(opt.value);
 
                         return (
                           <div className="radio-option" key={opt.value}>
@@ -257,7 +294,9 @@ export default function SurveyPage() {
                               }
                             />
                             <label htmlFor={inputId}>
-                              <span className="font-bold text-primary">{opt.value}.</span>{" "}
+                              <span className="font-bold text-primary">
+                                {opt.value}.
+                              </span>{" "}
                               {opt.label}
                             </label>
                           </div>
@@ -268,7 +307,8 @@ export default function SurveyPage() {
                     {unanswered && (
                       <p className="mt-3 flex items-center gap-1 pl-9 text-xs text-destructive">
                         <AlertCircle className="h-3 w-3" />
-                        Please select {isMultiple ? "at least one option" : "an option"}.
+                        Please select{" "}
+                        {isMultiple ? "at least one option" : "an option"}.
                       </p>
                     )}
                   </div>
